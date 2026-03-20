@@ -20,6 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      upstream_version: ${{ steps.version.outputs.upstream_version }}
       push: ${{ steps.version.outputs.push }}
     steps:
       - name: Checkout
@@ -30,12 +31,19 @@ jobs:
         run: |
           if [[ "${{ github.event.inputs.version }}" != "" ]]; then
             VERSION="${{ github.event.inputs.version }}"
+            # Extract upstream version (remove patch suffix like .1, .2)
+            UPSTREAM_VERSION=$(echo "$VERSION" | sed -E 's/\.[0-9]+$//')
             echo "push=true" >> $GITHUB_OUTPUT
           else
             VERSION="${GITHUB_REF#refs/tags/}"
+            # Extract upstream version (remove patch suffix like .1, .2)
+            UPSTREAM_VERSION=$(echo "$VERSION" | sed -E 's/\.[0-9]+$//')
             echo "push=true" >> $GITHUB_OUTPUT
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "upstream_version=$UPSTREAM_VERSION" >> $GITHUB_OUTPUT
+          echo "Image version: $VERSION"
+          echo "Upstream version: $UPSTREAM_VERSION"
 
   build-x64:
     needs: prepare
@@ -68,7 +76,7 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-amd64
           build-args: |
-            YOGURT_VERSION=${{ needs.prepare.outputs.version }}
+            YOGURT_VERSION=${{ needs.prepare.outputs.upstream_version }}
             YOGURT_ARCH=linux-x64
           cache-from: type=gha
           cache-to: type=gha,mode=min
@@ -104,7 +112,7 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-arm64
           build-args: |
-            YOGURT_VERSION=${{ needs.prepare.outputs.version }}
+            YOGURT_VERSION=${{ needs.prepare.outputs.upstream_version }}
             YOGURT_ARCH=linux-arm64
           cache-from: type=gha
           cache-to: type=gha,mode=min
@@ -127,6 +135,7 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create and push manifest
         if: needs.prepare.outputs.push == 'true'
         run: |

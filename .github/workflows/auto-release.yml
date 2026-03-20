@@ -17,6 +17,7 @@ jobs:
     outputs:
       new_version: ${{ steps.check.outputs.new_version }}
       should_release: ${{ steps.check.outputs.should_release }}
+      upstream_version: ${{ steps.check.outputs.upstream_version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -38,6 +39,7 @@ jobs:
           fi
 
           echo "Latest upstream version: $LATEST_VERSION"
+          echo "upstream_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
 
           # Check if we already have this version
           if git rev-parse "$LATEST_VERSION" >/dev/null 2>&1; then
