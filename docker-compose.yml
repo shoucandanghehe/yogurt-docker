@@ -1,0 +1,27 @@
+services:
+  yogurt:
+    build:
+      context: .
+      args:
+        # Available architectures: linux-x64, linux-arm64, windows-x64, macos-arm64
+        - YOGURT_ARCH=linux-x64
+    image: yogurt:latest
+    container_name: yogurt
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+RN:      - ./config.json:/app/config.json
+      - ./data:/app/data
+    environment:
+      - YOGURT_DATA_DIR=/app/data
+      # Optional: specify custom log level
+      # - KTOR_LOG_LEVEL=INFO
+
+  # Example: using an external sign API service
+  # sign-api:
+  #   image: some/sign-api:latest
+  #   container_name: sign-api
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8080:8080"

@@ -1,0 +1,15 @@
+# Runtime config (keep config.json.example but not the actual config)
+config.json
+
+# Session data
+data/
+*.json
+
+# Build artifacts
+node_modules/
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.iml

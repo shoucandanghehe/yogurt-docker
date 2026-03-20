@@ -1,0 +1,22 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+
+# Documentation
+README.md
+*.md
+
+# Config (mounted as volume)
+config.json
+
+# Data (mounted as volume)
+data/
+
+# Docker files
+Dockerfile
+docker-compose*.yml
+.dockerignore

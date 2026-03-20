@@ -1,0 +1,32 @@
+{
+  "configVersion": 3,
+  "protocol": {
+    "uin": 0,
+    "password": "",
+    "os": "Linux",
+    "version": "fetched",
+    "signApiUrl": "http://your-sign-api:8080",
+    "pcLagrangeSignToken": "",
+    "androidUseLegacySign": false
+  },
+  "milky": {
+    "http": {
+      "host": "0.0.0.0",
+      "port": 3000,
+      "accessToken": "",
+      "corsOrigins": []
+    },
+    "webhook": {
+      "endpoints": []
+    },
+    "reportSelfMessage": true,
+    "preloadContacts": false
+  },
+  "logging": {
+    "ansiLevel": "ANSI256",
+    "coreLogLevel": "DEBUG"
+  },
+  "security": {
+    "skipOnLaunchListenAddressCheck": false
+  }
+}
