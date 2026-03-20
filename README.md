@@ -24,7 +24,10 @@ services:
       - "3000:3000"
     volumes:
       - ./config.json:/app/config.json
-      - ./data:/app/data
+      - data:/app/data
+
+volumes:
+  data:
 ```
 
 3. 首次运行生成默认配置：
@@ -91,6 +94,18 @@ docker logs -f yogurt
 请参阅 [Yogurt 配置文档](https://acidify.ntqqrev.org/yogurt/configuration)。
 
 ## 数据持久化
+
+### Docker Compose
+
+会话数据存储在 Docker Volume `yogurt_data` 中。
+
+如需备份数据：
+
+```bash
+docker run --rm -v yogurt_data:/data -v $(pwd):/backup alpine tar czf /backup/yogurt-data.tar.gz -C /data .
+```
+
+### Docker Run
 
 会话数据存储在 `./data` 目录：
 
