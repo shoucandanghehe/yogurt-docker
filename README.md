@@ -88,18 +88,7 @@ docker logs -f yogurt
 
 ## 配置说明
 
-编辑 `config.json` 配置文件，关键配置项：
-
-| 配置项 | 说明 |
-|--------|------|
-| `protocol.uin` | 你的 QQ 号 |
-| `protocol.password` | QQ 密码（使用 Android 协议时必填） |
-| `protocol.os` | 协议类型：`Windows`、`Mac`、`Linux`、`AndroidPhone`、`AndroidPad` |
-| `protocol.signApiUrl` | 签名 API 服务地址（必填） |
-| `milky.http.port` | HTTP 服务端口（默认 3000） |
-| `milky.http.accessToken` | 访问令牌（建议生产环境设置） |
-
-完整配置说明请参阅 [Yogurt 配置文档](https://acidify.ntqqrev.org/yogurt/configuration)。
+请参阅 [Yogurt 配置文档](https://acidify.ntqqrev.org/yogurt/configuration)。
 
 ## 数据持久化
 
