@@ -4,15 +4,18 @@ Yogurt 的 Docker 部署方案，基于 [acidify-core](https://github.com/Lagran
 
 ## 前置要求
 
-- Docker 和 Docker Compose
+- Docker
 - 签名 API 服务
 
 ## 快速开始
 
-1. 克隆本仓库：
+1. 拉取镜像：
 ```bash
-git clone https://github.com/shoucandanghehe/yogurt-docker.git
-cd yogurt-docker
+# linux-x64
+docker pull ghcr.io/shoucandanghehe/yogurt-docker:latest-linux-x64
+
+# linux-arm64
+docker pull ghcr.io/shoucandanghehe/yogurt-docker:latest-linux-arm64
 ```
 
 2. 复制并编辑配置文件：
@@ -28,12 +31,18 @@ mkdir -p data
 
 4. 启动容器：
 ```bash
-docker compose up -d
+docker run -d \
+  --name yogurt \
+  --restart unless-stopped \
+  -v $(pwd)/config.json:/app/config.json \
+  -v $(pwd)/data:/app/data \
+  -p 3000:3000 \
+  ghcr.io/shoucandanghehe/yogurt-docker:latest-linux-x64
 ```
 
 5. 查看日志：
 ```bash
-docker compose logs -f
+docker logs -f yogurt
 ```
 
 ## 配置说明
