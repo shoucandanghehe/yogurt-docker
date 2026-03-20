@@ -2,11 +2,6 @@
 
 Yogurt 的 Docker 部署方案，基于 [acidify-core](https://github.com/LagrangeDev/acidify) 实现的 QQ 协议端。
 
-## 前置要求
-
-- Docker
-- 签名 API 服务
-
 ## 快速开始
 
 ### 方法一：Docker Compose（推荐）
