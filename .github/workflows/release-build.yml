@@ -27,6 +27,7 @@ jobs:
       upstream_version: ${{ steps.version.outputs.upstream_version }}
       should_build: ${{ steps.version.outputs.should_build }}
     steps:
+      - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
