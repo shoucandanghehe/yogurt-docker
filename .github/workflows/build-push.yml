@@ -18,22 +18,11 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build:
-    runs-on: ${{ matrix.runner }}
-    permissions:
-      contents: read
-      packages: write
-    strategy:
-      matrix:
-        include:
-          - runner: ubuntu-latest
-            arch: linux-x64
-            platform: linux/amd64
-            docker_arch: x86_64
-          - runner: ubuntu-24.04-arm
-            arch: linux-arm64
-            platform: linux/arm64
-            docker_arch: aarch64
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      push: ${{ steps.version.outputs.push }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -43,28 +32,35 @@ jobs:
         run: |
           if [[ "${{ github.event.inputs.version }}" != "" ]]; then
             VERSION="${{ github.event.inputs.version }}"
-            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
             echo "push=true" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
             VERSION="${GITHUB_REF#refs/tags/}"
-            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
             echo "push=true" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == refs/heads/main ]]; then
             VERSION="latest"
-            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
             echo "push=true" >> $GITHUB_OUTPUT
           else
             VERSION="latest"
-            echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
             echo "push=false" >> $GITHUB_OUTPUT
           fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+  build-x64:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
 
       - name: Set up Docker Buildx
-        if: steps.version.outputs.push == 'true'
+        if: needs.prepare.outputs.push == 'true'
         uses: docker/setup-buildx-action@v4
 
       - name: Login to GHCR
-        if: steps.version.outputs.push == 'true'
+        if: needs.prepare.outputs.push == 'true'
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
@@ -72,24 +68,76 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
-        if: steps.version.outputs.push == 'true'
+        if: needs.prepare.outputs.push == 'true'
         uses: docker/build-push-action@v7
         with:
           context: .
-          platforms: ${{ matrix.platform }}
+          platforms: linux/amd64
           push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.VERSION }}-${{ matrix.arch }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.VERSION }}-${{ matrix.docker_arch }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-amd64
           build-args: |
-            YOGURT_VERSION=${{ steps.version.outputs.VERSION }}
-            YOGURT_ARCH=${{ matrix.arch }}
+            YOGURT_VERSION=${{ needs.prepare.outputs.version }}
+            YOGURT_ARCH=linux-x64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-      # Build without push for non-tagged builds (test build)
-      - name: Build only (no push)
-        if: steps.version.outputs.push == 'false'
+  build-arm64:
+    needs: prepare
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        if: needs.prepare.outputs.push == 'true'
+        uses: docker/setup-buildx-action@v4
+
+      - name: Login to GHCR
+        if: needs.prepare.outputs.push == 'true'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        if: needs.prepare.outputs.push == 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-arm64v8
+          build-args: |
+            YOGURT_VERSION=${{ needs.prepare.outputs.version }}
+            YOGURT_ARCH=linux-arm64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  manifest:
+    needs: [prepare, build-x64, build-arm64]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Login to GHCR
+        if: needs.prepare.outputs.push == 'true'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and push manifest
+        if: needs.prepare.outputs.push == 'true'
         run: |
-          docker build \
-            --build-arg YOGURT_VERSION=${{ steps.version.outputs.VERSION }} \
-            --build-arg YOGURT_ARCH=${{ matrix.arch }} \
-            -t yogurt:test .
+          docker manifest create \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }} \
+            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-amd64 \
+            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-arm64v8
+          docker manifest push \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}
