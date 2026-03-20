@@ -5,13 +5,13 @@ Yogurt 的 Docker 部署方案，基于 [acidify-core](https://github.com/Lagran
 ## 前置要求
 
 - Docker 和 Docker Compose
-- 一个可用的[签名 API 服务](https://acidify.ntqqrev.org/yogurt/signing)
+- 签名 API 服务
 
 ## 快速开始
 
 1. 克隆本仓库：
 ```bash
-git clone https://github.com/your-repo/yogurt-docker.git
+git clone https://github.com/shoucandanghehe/yogurt-docker.git
 cd yogurt-docker
 ```
 
