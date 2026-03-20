@@ -30,7 +30,13 @@ volumes:
   data:
 ```
 
-3. 首次运行生成默认配置：
+3. **创建空配置文件**（重要：如不先创建，Docker 会将其作为目录创建）：
+
+```bash
+touch config.json
+```
+
+4. 首次运行生成默认配置：
 
 ```bash
 docker compose up
