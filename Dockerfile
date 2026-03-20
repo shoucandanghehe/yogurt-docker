@@ -25,10 +25,9 @@ WORKDIR /app
 
 # Copy entrypoint script
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
-
-# Create data directory with proper permissions
-RUN mkdir -p /app/data && chown -R yogurt:yogurt /app
+RUN chmod +x /docker-entrypoint.sh \
+    && mkdir -p /app/data \
+    && chown -R yogurt:yogurt /app
 
 # Switch to non-root user
 USER yogurt

@@ -36,22 +36,21 @@ volumes:
 touch config.json
 ```
 
-4. 首次运行生成默认配置：
+4. 首次运行让 Yogurt 自行生成默认配置：
 
 ```bash
 docker compose up
-# 看到 "Default config.json created" 后按 Ctrl+C 停止
+# 看到 "Empty config.json detected, asking yogurt to generate a default configuration..." 后按 Ctrl+C 停止
 ```
+5. 编辑 `config.json`，填写必要信息（QQ号、签名 API 地址等）
 
-4. 编辑 `config.json`，填写必要信息（QQ号、签名API地址等）
-
-5. 重新启动服务：
+6. 重新启动服务：
 
 ```bash
 docker compose up -d
 ```
 
-6. 查看日志：
+7. 查看日志：
 
 ```bash
 docker compose logs -f
@@ -65,14 +64,14 @@ docker compose logs -f
 mkdir -p data
 ```
 
-2. 首次运行生成默认配置：
+2. 首次运行让 Yogurt 自行生成默认配置：
 
 ```bash
 docker run --rm \
   -v $(pwd)/config.json:/app/config.json \
   -v $(pwd)/data:/app/data \
   ghcr.io/shoucandanghehe/yogurt-docker:latest
-# 看到 "Default config.json created" 即可
+# 看到 "Empty config.json detected, asking yogurt to generate a default configuration..." 即可
 ```
 
 3. 编辑 `config.json`，填写必要信息
