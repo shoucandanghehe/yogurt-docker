@@ -1,7 +1,7 @@
 FROM debian:stable-slim
 
 # Yogurt version (update as needed)
-ARG YOGURT_VERSION=v0.1.0-dev.177
+ARG YOGURT_VERSION=v0.1.0-dev.181
 ARG YOGURT_REPO=SaltifyDev/yogurt-releases
 ARG YOGURT_ARCH=linux-x64
 
@@ -9,11 +9,13 @@ ARG YOGURT_ARCH=linux-x64
 RUN apt-get update && apt-get install -y --no-install-recommends curl unzip ca-certificates adduser \
     && mkdir -p /app \
     && curl -fsSL "https://github.com/${YOGURT_REPO}/releases/download/${YOGURT_VERSION}/yogurt-${YOGURT_ARCH}.zip" -o "/tmp/yogurt.zip" \
-    && unzip -j "/tmp/yogurt.zip" "yogurt.kexe" -d /app \
-    && mv /app/yogurt.kexe /app/yogurt \
+    && [ -s "/tmp/yogurt.zip" ] || (echo "Error: zip file is empty or missing" && exit 1) \
+    && YOGURT_BIN=$(unzip -l "/tmp/yogurt.zip" | grep -E 'yogurt\.kexe|yogurt$' | head -1 | awk '{print $4}') \
+    && [ -n "$YOGURT_BIN" ] || (echo "Error: yogurt binary not found in zip" && exit 1) \
+    && unzip -j "/tmp/yogurt.zip" "$YOGURT_BIN" -d /app \
+    && mv /app/$(basename "$YOGURT_BIN") /app/yogurt \
     && rm /tmp/yogurt.zip \
     && chmod +x /app/yogurt \
-    && chown -R root:root /app \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security

@@ -79,7 +79,7 @@ jobs:
             YOGURT_VERSION=${{ needs.prepare.outputs.version }}
             YOGURT_ARCH=linux-x64
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=min
 
   build-arm64:
     needs: prepare
@@ -110,12 +110,12 @@ jobs:
           context: .
           platforms: linux/arm64
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-arm64v8
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-arm64
           build-args: |
             YOGURT_VERSION=${{ needs.prepare.outputs.version }}
             YOGURT_ARCH=linux-arm64
           cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-to: type=gha,mode=min
 
   manifest:
     needs: [prepare, build-x64, build-arm64]
@@ -141,4 +141,4 @@ jobs:
           docker buildx imagetools create \
             -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }} \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-amd64 \
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-arm64v8
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-arm64
