@@ -6,21 +6,13 @@ Yogurt 的 Docker 部署方案，基于 [acidify-core](https://github.com/Lagran
 
 ### 方法一：Docker Compose（推荐）
 
-1. 创建项目目录并进入：
+1. 创建项目目录：
 
 ```bash
 mkdir yogurt && cd yogurt
 ```
 
-2. 下载配置文件模板：
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/shoucandanghehe/yogurt-docker/main/config.json.example -o config.json
-```
-
-3. 编辑 `config.json`，填写必要信息（QQ号、签名API地址等）
-
-4. 创建 `docker-compose.yml`：
+2. 创建 `docker-compose.yml`：
 
 ```yaml
 services:
@@ -31,11 +23,20 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./config.json:/app/config.json:ro
+      - ./config.json:/app/config.json
       - ./data:/app/data
 ```
 
-5. 启动服务：
+3. 首次运行生成默认配置：
+
+```bash
+docker compose up
+# 看到 "Default config.json created" 后按 Ctrl+C 停止
+```
+
+4. 编辑 `config.json`，填写必要信息（QQ号、签名API地址等）
+
+5. 重新启动服务：
 
 ```bash
 docker compose up -d
@@ -49,24 +50,23 @@ docker compose logs -f
 
 ### 方法二：Docker Run
 
-1. 拉取镜像：
-
-```bash
-docker pull ghcr.io/shoucandanghehe/yogurt-docker:latest
-```
-
-2. 复制并编辑配置文件：
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/shoucandanghehe/yogurt-docker/main/config.json.example -o config.json
-# 根据实际情况修改 config.json
-```
-
-3. 创建数据目录：
+1. 创建数据目录：
 
 ```bash
 mkdir -p data
 ```
+
+2. 首次运行生成默认配置：
+
+```bash
+docker run --rm \
+  -v $(pwd)/config.json:/app/config.json \
+  -v $(pwd)/data:/app/data \
+  ghcr.io/shoucandanghehe/yogurt-docker:latest
+# 看到 "Default config.json created" 即可
+```
+
+3. 编辑 `config.json`，填写必要信息
 
 4. 启动容器：
 
@@ -74,7 +74,7 @@ mkdir -p data
 docker run -d \
   --name yogurt \
   --restart unless-stopped \
-  -v $(pwd)/config.json:/app/config.json:ro \
+  -v $(pwd)/config.json:/app/config.json \
   -v $(pwd)/data:/app/data \
   -p 3000:3000 \
   ghcr.io/shoucandanghehe/yogurt-docker:latest
