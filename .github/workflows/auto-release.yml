@@ -23,7 +23,7 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
 
       - name: Check for updates
         id: check
@@ -70,4 +70,4 @@ jobs:
           git tag ${{ steps.check.outputs.new_version }}
           git push origin ${{ steps.check.outputs.new_version }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT || secrets.GITHUB_TOKEN }}
