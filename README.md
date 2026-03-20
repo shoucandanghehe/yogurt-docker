@@ -11,11 +11,7 @@ Yogurt 的 Docker 部署方案，基于 [acidify-core](https://github.com/Lagran
 
 1. 拉取镜像：
 ```bash
-# linux-x64
-docker pull ghcr.io/shoucandanghehe/yogurt-docker:latest-linux-x64
-
-# linux-arm64
-docker pull ghcr.io/shoucandanghehe/yogurt-docker:latest-linux-arm64
+docker pull ghcr.io/shoucandanghehe/yogurt-docker:latest
 ```
 
 2. 复制并编辑配置文件：
@@ -37,7 +33,7 @@ docker run -d \
   -v $(pwd)/config.json:/app/config.json \
   -v $(pwd)/data:/app/data \
   -p 3000:3000 \
-  ghcr.io/shoucandanghehe/yogurt-docker:latest-linux-x64
+  ghcr.io/shoucandanghehe/yogurt-docker:latest
 ```
 
 5. 查看日志：

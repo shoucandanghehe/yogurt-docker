@@ -37,7 +37,8 @@ jobs:
             VERSION="${GITHUB_REF#refs/tags/}"
             echo "push=true" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == refs/heads/main ]]; then
-            VERSION="latest"
+            # Get latest release tag from upstream
+            VERSION=$(curl -fsSL "https://api.github.com/repos/SaltifyDev/yogurt-releases/releases/latest" | jq -r '.tag_name')
             echo "push=true" >> $GITHUB_OUTPUT
           else
             VERSION="latest"
