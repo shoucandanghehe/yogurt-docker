@@ -37,7 +37,6 @@ jobs:
             VERSION="${GITHUB_REF#refs/tags/}"
             echo "push=true" >> $GITHUB_OUTPUT
           elif [[ "${{ github.ref }}" == refs/heads/main ]]; then
-            # Get latest release tag from upstream
             VERSION=$(curl -fsSL "https://api.github.com/repos/SaltifyDev/yogurt-releases/releases/latest" | jq -r '.tag_name')
             echo "push=true" >> $GITHUB_OUTPUT
           else
@@ -138,7 +137,9 @@ jobs:
         run: |
           docker manifest create \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }} \
-            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-amd64 \
-            --amend ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-arm64v8
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-amd64
+          docker manifest annotate \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }} \
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}-arm64v8
           docker manifest push \
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.prepare.outputs.version }}
