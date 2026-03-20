@@ -9,34 +9,84 @@ Yogurt 的 Docker 部署方案，基于 [acidify-core](https://github.com/Lagran
 
 ## 快速开始
 
+### 方法一：Docker Compose（推荐）
+
+1. 创建项目目录并进入：
+
+```bash
+mkdir yogurt && cd yogurt
+```
+
+2. 下载配置文件模板：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/shoucandanghehe/yogurt-docker/main/config.json.example -o config.json
+```
+
+3. 编辑 `config.json`，填写必要信息（QQ号、签名API地址等）
+
+4. 创建 `docker-compose.yml`：
+
+```yaml
+services:
+  yogurt:
+    image: ghcr.io/shoucandanghehe/yogurt-docker:latest
+    container_name: yogurt
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./config.json:/app/config.json:ro
+      - ./data:/app/data
+```
+
+5. 启动服务：
+
+```bash
+docker compose up -d
+```
+
+6. 查看日志：
+
+```bash
+docker compose logs -f
+```
+
+### 方法二：Docker Run
+
 1. 拉取镜像：
+
 ```bash
 docker pull ghcr.io/shoucandanghehe/yogurt-docker:latest
 ```
 
 2. 复制并编辑配置文件：
+
 ```bash
-cp config.json.example config.json
+curl -fsSL https://raw.githubusercontent.com/shoucandanghehe/yogurt-docker/main/config.json.example -o config.json
 # 根据实际情况修改 config.json
 ```
 
 3. 创建数据目录：
+
 ```bash
 mkdir -p data
 ```
 
 4. 启动容器：
+
 ```bash
 docker run -d \
   --name yogurt \
   --restart unless-stopped \
-  -v $(pwd)/config.json:/app/config.json \
+  -v $(pwd)/config.json:/app/config.json:ro \
   -v $(pwd)/data:/app/data \
   -p 3000:3000 \
   ghcr.io/shoucandanghehe/yogurt-docker:latest
 ```
 
 5. 查看日志：
+
 ```bash
 docker logs -f yogurt
 ```
@@ -59,8 +109,27 @@ docker logs -f yogurt
 ## 数据持久化
 
 会话数据存储在 `./data` 目录：
+
 - `session-store.json` - PC 协议会话
 - `session-store-android.json` - Android 协议会话
+
+## 更新镜像
+
+### Docker Compose
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+### Docker Run
+
+```bash
+docker pull ghcr.io/shoucandanghehe/yogurt-docker:latest
+docker stop yogurt
+docker rm yogurt
+# 然后重新执行 docker run 命令
+```
 
 ## Milky 协议
 
