@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl unzip ca-c
 # Create non-root user for security
 RUN groupadd -g 1000 yogurt && adduser --disabled-login --gecos '' --uid 1000 --gid 1000 yogurt
 
-WORKDIR /app
+WORKDIR /app/data
 
 # Copy entrypoint script
 COPY docker-entrypoint.sh /docker-entrypoint.sh
@@ -35,10 +35,8 @@ USER yogurt
 # Expose HTTP port (default 3000)
 EXPOSE 3000
 
-# Volume for persistent data
+# Volume for Yogurt working directory and persisted runtime files
 VOLUME ["/app/data"]
-
-ENV YOGURT_DATA_DIR=/app/data
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["/app/yogurt"]

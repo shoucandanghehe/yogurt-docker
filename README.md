@@ -23,7 +23,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./config.json:/app/config.json
+      - ./config.json:/app/data/config.json
       - data:/app/data
 
 volumes:
@@ -68,7 +68,7 @@ mkdir -p data
 
 ```bash
 docker run --rm \
-  -v $(pwd)/config.json:/app/config.json \
+  -v $(pwd)/config.json:/app/data/config.json \
   -v $(pwd)/data:/app/data \
   ghcr.io/shoucandanghehe/yogurt-docker:latest
 # 看到 "Empty config.json detected, asking yogurt to generate a default configuration..." 即可
@@ -82,7 +82,7 @@ docker run --rm \
 docker run -d \
   --name yogurt \
   --restart unless-stopped \
-  -v $(pwd)/config.json:/app/config.json \
+  -v $(pwd)/config.json:/app/data/config.json \
   -v $(pwd)/data:/app/data \
   -p 3000:3000 \
   ghcr.io/shoucandanghehe/yogurt-docker:latest
@@ -102,7 +102,7 @@ docker logs -f yogurt
 
 ### Docker Compose
 
-会话数据存储在 Docker Volume `yogurt_data` 中。
+`config.json` 通过 bind mount 挂载到 Yogurt 的工作目录 `/app/data/config.json`，其余运行时文件存储在 Docker Volume `yogurt_data` 中。
 
 如需备份数据：
 
@@ -112,10 +112,11 @@ docker run --rm -v yogurt_data:/data -v $(pwd):/backup alpine tar czf /backup/yo
 
 ### Docker Run
 
-会话数据存储在 `./data` 目录：
+Yogurt 的工作目录位于 `./data`：
 
 - `session-store.json` - PC 协议会话
 - `session-store-android.json` - Android 协议会话
+- `scripts/` - 自定义脚本目录
 
 ## 更新镜像
 
